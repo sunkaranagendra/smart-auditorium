@@ -1,0 +1,103 @@
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+#define OLED_ADDR   0x3C  // OLED display TWI address
+#include "dht.h"
+#define DHT11_PIN D7
+dht DHT11;
+Adafruit_SSD1306 OLED(-1);
+int led1=2;
+int led=15;
+int ledf=12;
+int buz=14;
+int sensor = 0;
+int sensor1 =16;
+int counter=0;
+int counter1=0;
+int count=0; // pin number of sensor
+void setup() {
+  DHT11.read11(DHT11_PIN);    
+  OLED.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR);   
+  OLED.setTextSize(1);     //set text size
+  OLED.setTextColor(WHITE);    //set text color// initialize and clear display
+  OLED.clearDisplay();
+  OLED.display();
+  
+ 
+  
+  pinMode(sensor, INPUT); //set sensor as INPUT
+   pinMode(sensor1, INPUT);
+  
+  pinMode(led, OUTPUT);
+  pinMode(led1, OUTPUT);
+  pinMode(ledf, OUTPUT);
+  
+  pinMode(buz, OUTPUT);
+  
+  Serial.begin(9600); // put your setup code here, to run once:
+}
+
+void loop() {
+  if(digitalRead(sensor)==0){  // Checking the sensor
+    counter=counter+1;
+    }
+  if(digitalRead(sensor1)==0)
+  { 
+   counter1=counter1+1;
+  }
+  count=counter-counter1;
+  OLED.setCursor(15,25);
+  OLED.print("no. of persons"); // Print no of persons
+   OLED.print(count);
+     OLED.display();
+     delay(1000);
+   
+   Serial.print("no.of persons :");
+   Serial.println(count);
+    if((count>=1)&&( count<=5))
+   {
+   digitalWrite(led,HIGH);
+   digitalWrite(led1,HIGH);
+    }
+    if((count>=5) && (count<=15))
+    {
+      digitalWrite(led,HIGH);
+      digitalWrite(led1,LOW);
+    }
+    if(count>15)
+   {
+    digitalWrite(buz,HIGH);
+    delay(5000);
+   }
+   OLED.clearDisplay();
+  OLED.display();
+  OLED.setCursor(1,10);   
+   OLED.print("Temp: ");
+   OLED.print(DHT11.temperature); 
+  OLED.print("*C");
+  OLED.display();
+ 
+    Serial.print("temp: ");
+    Serial.print(DHT11.temperature);// Print the temperature
+    Serial.println("*C");
+    OLED.setCursor(5,40);
+    OLED.print("Humidity:");
+    OLED.print(DHT11.humidity);     // Print the humidity
+    OLED.print("%");
+    OLED.display();
+    
+    Serial.print("Humidity:");
+    Serial.print(DHT11.humidity);     // Print the humidity
+    Serial.println("%");
+  if(DHT11.temperature>=35)
+  {
+    digitalWrite(buz,LOW);
+    Serial.println("fire alert");
+   
+  }
+  if(DHT11.humidity>=35)
+  {
+    digitalWrite(ledf,HIGH);
+   
+  } 
+}
